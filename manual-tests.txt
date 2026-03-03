@@ -64,7 +64,9 @@ Use `./build.sh` to build CiCo and `./run.sh` to run it if using the command lin
 Ticket 501 – Next Person Button
 
 1. Launch application.
-2. Scan a valid card and verify message appears.
-3. Click "Next Person" and verify screen resets immediately.
-4. Scan again and do not click button.
-5. Verify timeout still resets screen automatically.
+2. Scan valid code 00000000.
+3. Verify status screen appears with user name and check-in/out state.
+4. Click "Next Person".
+5. Expected: Application immediately returns to main scan screen.
+6. Scan valid code again and do not click button.
+7. Expected: Application returns to main scan screen after timeout.
