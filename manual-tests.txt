@@ -61,4 +61,10 @@ Use `./build.sh` to build CiCo and `./run.sh` to run it if using the command lin
 ## Expected results
 * Should display "Developer" for the user name.
 
+Ticket 501 – Next Person Button
 
+1. Launch application.
+2. Scan a valid card and verify message appears.
+3. Click "Next Person" and verify screen resets immediately.
+4. Scan again and do not click button.
+5. Verify timeout still resets screen automatically.
