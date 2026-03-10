@@ -37,12 +37,35 @@ public class Main {
   private static class InputFilter extends DocumentFilter {
     private static final int MAX_LENGTH = 8;
 
+    private static boolean isDigitsOnly(String value) {
+      for (int idx = 0; idx < value.length(); idx += 1) {
+        if (!Character.isDigit(value.charAt(idx))) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    private static void submitIfComplete(Document document) {
+      if (document != null && document.getLength() == MAX_LENGTH) {
+        SwingUtilities.invokeLater(Main::processCard);
+      }
+    }
+
     @Override
     public void insertString(FilterBypass fb, int offset, String stringToAdd, AttributeSet attr)
         throws BadLocationException
     {
-      if (fb.getDocument() != null) {
+      if (stringToAdd == null || stringToAdd.isEmpty()) {
+        return;
+      }
+
+      Document document = fb.getDocument();
+      if (document != null
+          && isDigitsOnly(stringToAdd)
+          && document.getLength() + stringToAdd.length() <= MAX_LENGTH) {
         super.insertString(fb, offset, stringToAdd, attr);
+        submitIfComplete(document);
       }
       else {
         Toolkit.getDefaultToolkit().beep();
@@ -53,8 +76,13 @@ public class Main {
     public void replace(FilterBypass fb, int offset, int lengthToDelete, String stringToAdd, AttributeSet attr)
         throws BadLocationException
     {
-      if (fb.getDocument() != null) {
+      Document document = fb.getDocument();
+      int lengthToAdd = stringToAdd == null ? 0 : stringToAdd.length();
+      if (document != null
+          && (stringToAdd == null || stringToAdd.isEmpty() || isDigitsOnly(stringToAdd))
+          && document.getLength() - lengthToDelete + lengthToAdd <= MAX_LENGTH) {
         super.replace(fb, offset, lengthToDelete, stringToAdd, attr);
+        submitIfComplete(document);
       }
       else {
         Toolkit.getDefaultToolkit().beep();
@@ -258,13 +286,8 @@ public class Main {
     fieldNumber.setAlignmentX(JComponent.CENTER_ALIGNMENT);
     fieldNumber.setBackground(Color.green);
     fieldNumber.setForeground(Color.magenta);
+    fieldNumber.addActionListener(new Update());
     panelMain.add(fieldNumber);
-
-    JButton updateButton = new JButton("Update");
-    updateButton.setAlignmentX(JComponent.CENTER_ALIGNMENT);
-    updateButton.addActionListener(new Update());
-    updateButton.setForeground(Color.green);
-    panelMain.add(updateButton);
 
     panelMain.add(Box.createVerticalGlue());
 
