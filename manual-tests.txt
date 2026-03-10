@@ -4,7 +4,7 @@ Use `./build.sh` to build CiCo and `./run.sh` to run it if using the command lin
 
 ## Test steps
 1. Build and run CiCo.
-2. Enter 00000000 into the field and click Update.
+2. Enter 00000000 into the field.
 3. Wait 11 seconds.
 
 ## Expected results:
@@ -15,7 +15,7 @@ Use `./build.sh` to build CiCo and `./run.sh` to run it if using the command lin
 
 ## Test steps
 1. Build and run CiCo.
-2. Enter 99999999 into the field and click Update.
+2. Enter 99999999 into the field.
 3. Wait 11 seconds.
 
 ## Expected results:
@@ -26,7 +26,7 @@ Use `./build.sh` to build CiCo and `./run.sh` to run it if using the command lin
 
 ## Test steps
 1. Build and run CiCo.
-2. Enter 99999999 into the field and click Update.
+2. Enter 99999999 into the field.
 
 ## Expected results
 * The panel should display "Please show your card to staff to validate." after step 2.
@@ -44,9 +44,9 @@ Use `./build.sh` to build CiCo and `./run.sh` to run it if using the command lin
 
 ## Test steps
 1. Build and run CiCo.
-2. Enter 00000000 into the field and click Update.
+2. Enter 00000000 into the field.
 3. Wait for status panel to close.
-4. Enter 00000000 into the field and click Update.
+4. Enter 00000000 into the field.
 
 ## Expected results
 * Should display "Checked IN" after step 2.
@@ -56,9 +56,29 @@ Use `./build.sh` to build CiCo and `./run.sh` to run it if using the command lin
 
 ## Test steps
 1. Build and run CiCo.
-2. Enter 00000000 into the field and click Update.
+2. Enter 00000000 into the field.
 
 ## Expected results
 * Should display "Developer" for the user name.
+
+# Module 5: Ticket 601 happy path (auto-submit)
+
+## Test steps
+1. Build and run CiCo.
+2. Type 00000000 into the card number field.
+
+## Expected results
+* After the 8th digit is entered, the status panel appears automatically.
+* No action button is required to submit the card number.
+
+# Module 5: Ticket 601 invalid card (auto-submit)
+
+## Test steps
+1. Build and run CiCo.
+2. Type 99999999 into the card number field.
+
+## Expected results
+* After the 8th digit is entered, the error panel appears automatically.
+* No action button is required to submit the card number.
 
 
