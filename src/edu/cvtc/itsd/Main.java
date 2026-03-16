@@ -39,24 +39,20 @@ public class Main {
 
     @Override
     public void insertString(FilterBypass fb, int offset, String stringToAdd, AttributeSet attr)
-        throws BadLocationException
-    {
+        throws BadLocationException {
       if (fb.getDocument() != null) {
         super.insertString(fb, offset, stringToAdd, attr);
-      }
-      else {
+      } else {
         Toolkit.getDefaultToolkit().beep();
       }
     }
 
     @Override
     public void replace(FilterBypass fb, int offset, int lengthToDelete, String stringToAdd, AttributeSet attr)
-        throws BadLocationException
-    {
+        throws BadLocationException {
       if (fb.getDocument() != null) {
         super.replace(fb, offset, lengthToDelete, stringToAdd, attr);
-      }
-      else {
+      } else {
         Toolkit.getDefaultToolkit().beep();
       }
     }
@@ -92,8 +88,7 @@ public class Main {
         statementUpdateLog.close();
         db.close();
         System.out.println("Clean shutdown");
-      }
-      catch (SQLException e) {
+      } catch (SQLException e) {
         System.err.println(e.getMessage());
       }
     }
@@ -106,6 +101,7 @@ public class Main {
   static JLabel labelUser;
   static JLabel labelState;
   static JButton buttonAcknowledge;
+  static JButton buttonNextPerson;
 
   // Timer variables //////////////////////////////////////////////////////////
   static java.util.Timer timer;
@@ -151,20 +147,17 @@ public class Main {
 
         updateStateLabels(name, currentState == 1);
         scheduleTransitionFrom(CARD_STATE, null);
-      }
-      else {
+      } else {
         showError(ERROR_NOT_FOUND);
       }
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       System.err.println(e.getMessage());
       showError(ERROR_UNKNOWN);
-    }
-    finally {
+    } finally {
       try {
-        if (rows != null) rows.close();
-      }
-      catch (SQLException e2) {
+        if (rows != null)
+          rows.close();
+      } catch (SQLException e2) {
         System.err.println(e2.getMessage());
         showError(ERROR_UNKNOWN);
       }
@@ -193,7 +186,7 @@ public class Main {
     }
     timeout = new Timeout();
     timer.schedule(timeout, TIMEOUT_PANEL_MS);
-    ((CardLayout)deck.getLayout()).show(deck, fromCard);
+    ((CardLayout) deck.getLayout()).show(deck, fromCard);
     if (toFocus != null) {
       toFocus.grabFocus();
     }
@@ -204,7 +197,7 @@ public class Main {
     timeout.cancel();
     timeout = null;
     fieldNumber.setText("");
-    ((CardLayout)deck.getLayout()).show(deck, CARD_MAIN);
+    ((CardLayout) deck.getLayout()).show(deck, CARD_MAIN);
     fieldNumber.grabFocus();
   }
 
@@ -252,7 +245,7 @@ public class Main {
 
     fieldNumber = new JTextField();
     InputFilter filter = new InputFilter();
-    ((AbstractDocument)(fieldNumber.getDocument())).setDocumentFilter(filter);
+    ((AbstractDocument) (fieldNumber.getDocument())).setDocumentFilter(filter);
     fieldNumber.setPreferredSize(new Dimension(200, 32));
     fieldNumber.setMaximumSize(new Dimension(200, 32));
     fieldNumber.setAlignmentX(JComponent.CENTER_ALIGNMENT);
@@ -289,6 +282,14 @@ public class Main {
     labelState.setForeground(Color.magenta);
     panelStatus.add(labelState);
 
+    panelStatus.add(Box.createVerticalStrut(20));
+
+    buttonNextPerson = new JButton("Next Person");
+    buttonNextPerson.setAlignmentX(Component.CENTER_ALIGNMENT);
+    buttonNextPerson.addActionListener(e -> doneProcessing());
+    panelStatus.add(buttonNextPerson);
+
+    panelStatus.add(Box.createVerticalStrut(20));
     panelStatus.add(Box.createVerticalGlue());
 
     // Error panel ////////////////////////////////////////////////////////////
@@ -332,30 +333,33 @@ public class Main {
 
     // Connect to DB //////////////////////////////////////////////////////////
     try {
-      //noinspection SpellCheckingInspection
+      // noinspection SpellCheckingInspection
       db = DriverManager.getConnection("jdbc:sqlite:cico.db");
       Statement command = db.createStatement();
       command.setQueryTimeout(TIMEOUT_STATEMENT_S);
 
       // Create the tables if needed.
-      command.executeUpdate("CREATE TABLE IF NOT EXISTS members (id INTEGER PRIMARY KEY, name TEXT NOT NULL, card TEXT NOT NULL, is_checked_in INTEGER)");
-      command.executeUpdate("CREATE TABLE IF NOT EXISTS log (members_id INTEGER, is_checked_in INTEGER, at TEXT NOT NULL)");
+      command.executeUpdate(
+          "CREATE TABLE IF NOT EXISTS members (id INTEGER PRIMARY KEY, name TEXT NOT NULL, card TEXT NOT NULL, is_checked_in INTEGER)");
+      command.executeUpdate(
+          "CREATE TABLE IF NOT EXISTS log (members_id INTEGER, is_checked_in INTEGER, at TEXT NOT NULL)");
 
       // 99999999 is guaranteed invalid.
       command.executeUpdate("DELETE FROM members WHERE card = '99999999'");
 
       // 00000000 is guaranteed valid; create if needed.
-      command.executeUpdate("INSERT INTO members (name, card, is_checked_in) SELECT 'Developer', '00000000', 0 WHERE NOT EXISTS (SELECT name, card, is_checked_in FROM members WHERE card = '00000000')");
+      command.executeUpdate(
+          "INSERT INTO members (name, card, is_checked_in) SELECT 'Developer', '00000000', 0 WHERE NOT EXISTS (SELECT name, card, is_checked_in FROM members WHERE card = '00000000')");
 
       // Create parameterized SQL statements.
       statementQueryCard = db.prepareStatement("SELECT id, name, is_checked_in FROM members WHERE card = ? LIMIT 1");
       statementUpdateMember = db.prepareStatement("UPDATE members SET is_checked_in = ? WHERE id = ?");
-      statementUpdateLog = db.prepareStatement("INSERT INTO log (members_id, is_checked_in, at) VALUES (?, ?, datetime())");
+      statementUpdateLog = db
+          .prepareStatement("INSERT INTO log (members_id, is_checked_in, at) VALUES (?, ?, datetime())");
 
       // Close the database and prepared statements on exit.
       Runtime.getRuntime().addShutdownHook(new Thread(new OnShutdown()));
-    }
-    catch (SQLException e) {
+    } catch (SQLException e) {
       System.err.println(e.getMessage());
       db = null;
     }
